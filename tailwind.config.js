@@ -13,7 +13,19 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Outfit', ...defaultTheme.fontFamily.sans],
+            },
+            colors: {
+                forest: '#327039',
+                earth: '#1A5C20',
+                wheat: '#F0E649',
+                cherry: '#F8A03D',
+                russet: '#6EA13D',
+                angonku: {
+                    orange: '#E8663B',
+                    cream: '#FFF8EE',
+                    bg: '#F7F3ED',
+                },
             },
         },
     },
