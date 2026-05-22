@@ -1,5 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import BottomNav from '@/Components/BottomNav';
 
 export default function Edit({ auth }) {
@@ -11,9 +11,33 @@ export default function Edit({ auth }) {
 
     // Stateful list of cages. Starts with one cage like Image 1.
     // Can be deleted (leads to empty state like Image 3) and added back.
-    const [cages, setCages] = useState([
-        { id: 'k-21', status: 'AKTIF', population: '500 EKOR' },
-    ]);
+    const [cages, setCages] = useState([]);
+
+    useEffect(() => {
+        const storedHasCage = localStorage.getItem('terna_kuy_has_cage');
+        const storedCageData = localStorage.getItem('terna_kuy_cage_data');
+        if (storedHasCage === 'true') {
+            if (storedCageData) {
+                try {
+                    const data = JSON.parse(storedCageData);
+                    setCages([
+                        { 
+                            id: data.kodeKandang || 'K-01', 
+                            status: 'AKTIF', 
+                            population: `${data.jumlahBibit || '2850'} EKOR`,
+                            farmName: data.namaFarm || 'peternakan gokil'
+                        }
+                    ]);
+                } catch (e) {
+                    setCages([{ id: 'K-01', status: 'AKTIF', population: '2850 EKOR', farmName: 'peternakan gokil' }]);
+                }
+            } else {
+                setCages([{ id: 'K-01', status: 'AKTIF', population: '2850 EKOR', farmName: 'peternakan gokil' }]);
+            }
+        } else {
+            setCages([]);
+        }
+    }, []);
 
     // Stateful notification settings
     const [notifications, setNotifications] = useState({
@@ -28,15 +52,17 @@ export default function Edit({ auth }) {
 
     // Add new cage handler (switches view to populated farm card)
     const addCage = () => {
-        setCages([
-            ...cages,
-            { id: `k-${cages.length + 21}`, status: 'AKTIF', population: '500 EKOR' },
-        ]);
+        router.visit('/setup-kandang');
     };
 
     // Remove cage handler (leaves empty state when length is 0)
     const deleteCage = (indexToDelete) => {
-        setCages(cages.filter((_, index) => index !== indexToDelete));
+        const newCages = cages.filter((_, index) => index !== indexToDelete);
+        setCages(newCages);
+        if (newCages.length === 0) {
+            localStorage.setItem('terna_kuy_has_cage', 'false');
+            localStorage.removeItem('terna_kuy_cage_data');
+        }
     };
 
     // Toggle notification handler
@@ -117,7 +143,7 @@ export default function Edit({ auth }) {
                                         />
                                     </div>
                                     <div className="settings-user-info">
-                                        <span className="settings-farm-name">peternakan gokil</span>
+                                        <span className="settings-farm-name">{cages[0]?.farmName || 'peternakan gokil'}</span>
                                         <span className="settings-farm-subtext">LOKASI TERDAFTAR</span>
                                     </div>
                                 </div>

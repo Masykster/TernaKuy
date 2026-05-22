@@ -17,6 +17,10 @@ Route::get('/input-harian', function () {
     return Inertia::render('InputHarian');
 });
 
+Route::get('/setup-kandang', function () {
+    return Inertia::render('SetupKandang');
+});
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

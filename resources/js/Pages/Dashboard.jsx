@@ -1,4 +1,5 @@
-import { Head } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import { Head, Link } from '@inertiajs/react';
 import CycleCard from '@/Components/CycleCard';
 import MetricsSection from '@/Components/MetricsSection';
 import WeatherForecast from '@/Components/WeatherForecast';
@@ -7,6 +8,16 @@ import AgendaSection from '@/Components/AgendaSection';
 import BottomNav from '@/Components/BottomNav';
 
 export default function Dashboard() {
+    const [hasCage, setHasCage] = useState(false);
+
+    useEffect(() => {
+        const storedHasCage = localStorage.getItem('terna_kuy_has_cage');
+        if (storedHasCage === 'true') {
+            setHasCage(true);
+        } else {
+            setHasCage(false);
+        }
+    }, []);
     return (
         <>
             <Head title="Dashboard" />
@@ -93,7 +104,24 @@ export default function Dashboard() {
 
                     {/* Active Cycle Card */}
                     <div className="animate-in animate-delay-1">
-                        <CycleCard />
+                        {hasCage ? (
+                            <CycleCard />
+                        ) : (
+                            <div className="empty-cycle-card">
+                                <div className="empty-cycle-icon-container">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="empty-cycle-icon-warning">
+                                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                        <line x1="12" y1="9" x2="12" y2="13" />
+                                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                                    </svg>
+                                </div>
+                                <h2 className="empty-cycle-title">Belum Ada Siklus Aktif</h2>
+                                <p className="empty-cycle-text">Silakan atur kandang dan mulai siklus baru.</p>
+                                <Link href="/setup-kandang" className="empty-cycle-btn">
+                                    SET UP KANDANG
+                                </Link>
+                            </div>
+                        )}
                     </div>
 
                     {/* Metrics */}
