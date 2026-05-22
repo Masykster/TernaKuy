@@ -9,6 +9,7 @@ import BottomNav from '@/Components/BottomNav';
 
 export default function Dashboard() {
     const [hasCage, setHasCage] = useState(false);
+    const [userName, setUserName] = useState('Cesya Aulia');
 
     useEffect(() => {
         const storedHasCage = localStorage.getItem('terna_kuy_has_cage');
@@ -16,6 +17,18 @@ export default function Dashboard() {
             setHasCage(true);
         } else {
             setHasCage(false);
+        }
+
+        const storedProfile = localStorage.getItem('terna_kuy_user_profile');
+        if (storedProfile) {
+            try {
+                const profile = JSON.parse(storedProfile);
+                if (profile.name) {
+                    setUserName(profile.name);
+                }
+            } catch (e) {
+                // ignore
+            }
         }
     }, []);
     return (
@@ -89,7 +102,7 @@ export default function Dashboard() {
                         {/* Greeting Text */}
                         <div className="greeting-section">
                             <p className="greeting-text">Selamat pagi,</p>
-                            <h1 className="greeting-name">Pak Budi!</h1>
+                            <h1 className="greeting-name">{userName}!</h1>
                         </div>
 
                         {/* Chicken mascot */}

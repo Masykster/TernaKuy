@@ -3,6 +3,7 @@ import { Head, Link, router } from '@inertiajs/react';
 
 export default function SetupKandang() {
     const [step, setStep] = useState(1);
+    const [isEditing, setIsEditing] = useState(false);
 
     // Step 1 States
     const [namaFarm, setNamaFarm] = useState('');
@@ -19,6 +20,28 @@ export default function SetupKandang() {
     // Leaflet map refs & instances
     const mapInstanceRef = useRef(null);
     const markerInstanceRef = useRef(null);
+
+    // Check if in edit mode on mount and load existing cage data
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('edit') === 'true') {
+            setIsEditing(true);
+            const storedCageData = localStorage.getItem('terna_kuy_cage_data');
+            if (storedCageData) {
+                try {
+                    const data = JSON.parse(storedCageData);
+                    setNamaFarm(data.namaFarm || '');
+                    setAlamat(data.alamat || '');
+                    setKodeKandang(data.kodeKandang || '');
+                    setKomoditas(data.komoditas || '');
+                    setLuasKandang(data.luasKandang || '');
+                    setJumlahBibit(data.jumlahBibit || '');
+                } catch (e) {
+                    // ignore
+                }
+            }
+        }
+    }, []);
 
     // Dynamic Leaflet asset injection
     useEffect(() => {
@@ -165,7 +188,7 @@ export default function SetupKandang() {
                 jumlahBibit
             };
             localStorage.setItem('terna_kuy_cage_data', JSON.stringify(cageData));
-            router.visit('/');
+            router.visit(isEditing ? '/profile' : '/');
         }
     };
 
@@ -278,16 +301,16 @@ export default function SetupKandang() {
                             )}
                             {step === 1 && (
                                 <Link
-                                    href="/"
+                                    href={isEditing ? "/profile" : "/"}
                                     style={{ padding: '4px', display: 'flex', alignItems: 'center' }}
-                                    aria-label="Kembali ke Dashboard"
+                                    aria-label={isEditing ? "Kembali ke Pengaturan" : "Kembali ke Dashboard"}
                                 >
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A2E1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                         <polyline points="15 18 9 12 15 6" />
                                     </svg>
                                 </Link>
                             )}
-                            <h1 className="setup-title">Setup</h1>
+                            <h1 className="setup-title">{isEditing ? 'Edit Setup' : 'Setup'}</h1>
                         </div>
                         <span className="setup-step-text">STEP {step} DARI 2</span>
                     </div>
@@ -304,7 +327,7 @@ export default function SetupKandang() {
                     {step === 1 ? (
                         /* Step 1: Profil Peternakan */
                         <>
-                            <h2 className="setup-section-title">Profil Peternakan</h2>
+                            <h2 className="setup-section-title">{isEditing ? 'Edit Profil Peternakan' : 'Profil Peternakan'}</h2>
                             <div className="setup-card">
                                 <label className="setup-input-label">NAMA FARM</label>
                                 <div className="setup-input-container">
@@ -361,7 +384,7 @@ export default function SetupKandang() {
                     ) : (
                         /* Step 2: Setup Kandang Pertama */
                         <>
-                            <h2 className="setup-section-title">Setup Kandang Pertama</h2>
+                            <h2 className="setup-section-title">{isEditing ? 'Edit Setup Kandang' : 'Setup Kandang Pertama'}</h2>
                             <div className="setup-card">
                                 <label className="setup-input-label">KODE KANDANG / TAMBAK</label>
                                 <div className="setup-input-container">
@@ -434,7 +457,7 @@ export default function SetupKandang() {
                             disabled={!step2Valid}
                             onClick={handleSaveSetup}
                         >
-                            MULAI GUNAKAN
+                            {isEditing ? 'SIMPAN PERUBAHAN' : 'MULAI GUNAKAN'}
                         </button>
                     )}
                 </div>
