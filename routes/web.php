@@ -6,28 +6,15 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Dashboard');
-});
-
-Route::get('/dashboard-preview', function () {
-    return Inertia::render('Dashboard');
-})->name('dashboard.preview');
-
-Route::get('/input-harian', function () {
-    return Inertia::render('InputHarian');
-});
-
-Route::get('/setup-kandang', function () {
-    return Inertia::render('SetupKandang');
+    return redirect()->route('login');
 });
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified', 'active'])->name('dashboard');
 
-Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });

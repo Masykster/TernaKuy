@@ -1,8 +1,4 @@
-import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
@@ -23,77 +19,94 @@ export default function Login({ status, canResetPassword }) {
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title="Masuk" />
+
+            <h2 className="auth-title">Selamat Datang! 👋</h2>
+            <p className="auth-subtitle">Masuk ke akun Angonku kamu</p>
 
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
+                <div className="auth-status-success">
                     {status}
                 </div>
             )}
 
             <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
-                        id="email"
+                {/* Email */}
+                <div className="auth-field">
+                    <label htmlFor="login-email" className="auth-label">
+                        Email
+                    </label>
+                    <input
+                        id="login-email"
                         type="email"
                         name="email"
                         value={data.email}
-                        className="mt-1 block w-full"
+                        className="auth-input"
+                        placeholder="contoh@email.com"
                         autoComplete="username"
-                        isFocused={true}
+                        autoFocus
                         onChange={(e) => setData('email', e.target.value)}
                     />
-
-                    <InputError message={errors.email} className="mt-2" />
+                    <InputError message={errors.email} className="auth-error" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-
-                    <TextInput
-                        id="password"
+                {/* Password */}
+                <div className="auth-field">
+                    <label htmlFor="login-password" className="auth-label">
+                        Kata Sandi
+                    </label>
+                    <input
+                        id="login-password"
                         type="password"
                         name="password"
                         value={data.password}
-                        className="mt-1 block w-full"
+                        className="auth-input"
+                        placeholder="Masukkan kata sandi"
                         autoComplete="current-password"
                         onChange={(e) => setData('password', e.target.value)}
                     />
-
-                    <InputError message={errors.password} className="mt-2" />
+                    <InputError message={errors.password} className="auth-error" />
                 </div>
 
-                <div className="mt-4 block">
-                    <label className="flex items-center">
-                        <Checkbox
+                {/* Remember + Forgot */}
+                <div className="auth-row-between">
+                    <label className="auth-checkbox-label">
+                        <input
+                            type="checkbox"
                             name="remember"
                             checked={data.remember}
-                            onChange={(e) =>
-                                setData('remember', e.target.checked)
-                            }
+                            onChange={(e) => setData('remember', e.target.checked)}
+                            className="auth-checkbox"
                         />
-                        <span className="ms-2 text-sm text-gray-600">
-                            Remember me
-                        </span>
+                        <span>Ingat saya</span>
                     </label>
-                </div>
 
-                <div className="mt-4 flex items-center justify-end">
                     {canResetPassword && (
                         <Link
                             href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            className="auth-link"
                         >
-                            Forgot your password?
+                            Lupa kata sandi?
                         </Link>
                     )}
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
-                    </PrimaryButton>
                 </div>
+
+                {/* Submit */}
+                <button
+                    type="submit"
+                    className="auth-btn-primary"
+                    disabled={processing}
+                >
+                    {processing ? 'Memproses...' : 'Masuk'}
+                </button>
+
+                {/* Register Link */}
+                <p className="auth-bottom-text">
+                    Belum punya akun?{' '}
+                    <Link href={route('register')} className="auth-link-bold">
+                        Daftar Sekarang
+                    </Link>
+                </p>
             </form>
         </GuestLayout>
     );

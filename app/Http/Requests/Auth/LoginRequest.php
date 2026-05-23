@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -42,11 +43,47 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        // Check if user account is locked
+        $user = User::where('email', $this->string('email'))->first();
+
+        if ($user && $user->locked_until && $user->locked_until->isFuture()) {
+            $minutes = $user->locked_until->diffInMinutes(now());
+
+            throw ValidationException::withMessages([
+                'email' => "Akun terkunci. Coba lagi dalam {$minutes} menit.",
+            ]);
+        }
+
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
+            // Track failed login on user record
+            if ($user) {
+                $user->increment('failed_login');
+
+                // Lock account after 5 failed attempts for 15 minutes
+                if ($user->failed_login >= 5) {
+                    $user->update([
+                        'locked_until' => now()->addMinutes(15),
+                        'failed_login' => 0,
+                    ]);
+
+                    throw ValidationException::withMessages([
+                        'email' => 'Terlalu banyak percobaan login. Akun terkunci selama 15 menit.',
+                    ]);
+                }
+            }
+
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
+            ]);
+        }
+
+        // Reset failed login counter on successful login
+        if ($user) {
+            $user->update([
+                'failed_login' => 0,
+                'locked_until' => null,
             ]);
         }
 
