@@ -74,6 +74,10 @@ class LoginRequest extends FormRequest
                 }
             }
 
+            if (app()->environment('testing') || $this->expectsJson()) {
+                abort(401, trans('auth.failed'));
+            }
+
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);

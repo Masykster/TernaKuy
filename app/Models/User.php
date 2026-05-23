@@ -56,4 +56,9 @@ class User extends Authenticatable
             'is_active' => 'boolean',
         ];
     }
+
+    public function farms()
+    {
+        return $this->hasMany(Farm::class);
+    }
 }

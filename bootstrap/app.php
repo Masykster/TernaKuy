@@ -20,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
             'active' => \App\Http\Middleware\EnsureUserIsActive::class,
+            'onboarding.completed' => \App\Http\Middleware\OnboardingCompleted::class,
+            'withdrawal.safe' => \App\Http\Middleware\EnsureWithdrawalSafe::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

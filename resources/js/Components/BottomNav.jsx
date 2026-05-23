@@ -1,9 +1,14 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 export default function BottomNav({ activeTab = 'home' }) {
+    const { active_cycle_id } = usePage().props;
+    const fabHref = active_cycle_id 
+        ? route('cycles.records.create', { cycle: active_cycle_id }) 
+        : route('cycle.create');
+
     const tabs = [
         { id: 'home', label: 'Home', icon: HomeIcon, href: '/' },
-        { id: 'timeline', label: 'Timeline', icon: TimelineIcon, href: null },
+        { id: 'timeline', label: 'Timeline', icon: TimelineIcon, href: active_cycle_id ? route('cycle.show', { cycle: active_cycle_id }) : null },
         { id: 'spacer', label: '', icon: null },
         { id: 'kesehatan', label: 'Kesehatan', icon: KesehatanIcon, href: null },
         { id: 'profil', label: 'Profil', icon: ProfilIcon, href: '/profile' },
@@ -12,7 +17,7 @@ export default function BottomNav({ activeTab = 'home' }) {
     return (
         <>
             {/* FAB Button */}
-            <Link href="/input-harian" className="fab-button" aria-label="Tambah">
+            <Link href={fabHref} className="fab-button" aria-label="Tambah">
                 <img
                     src="/images/fe_plus.png"
                     alt="Tambah"

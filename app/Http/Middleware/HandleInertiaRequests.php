@@ -29,10 +29,21 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $activeCycle = null;
+        if ($request->user()) {
+            $activeCycle = \App\Models\Cycle::whereHas('coop.farm', function ($q) use ($request) {
+                $q->where('user_id', $request->user()->id);
+            })->where('status', 'active')->first();
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
+            ],
+            'active_cycle_id' => $activeCycle ? $activeCycle->id : null,
+            'flash' => [
+                'daily_record_saved' => $request->session()->get('daily_record_saved'),
             ],
         ];
     }

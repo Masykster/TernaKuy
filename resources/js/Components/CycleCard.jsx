@@ -1,31 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from '@inertiajs/react';
 
-export default function CycleCard() {
+export default function CycleCard({ activeCycle, currentDay }) {
     const [progress, setProgress] = useState(0);
-    const [cageName, setCageName] = useState('K-01');
-    const [population, setPopulation] = useState('2850 Ekor');
 
+    const cageCode = activeCycle?.coop?.coop_code || '-';
+    const population = activeCycle?.doc_count ? `${activeCycle.doc_count.toLocaleString()} Ekor` : '0 Ekor';
+    const targetDays = activeCycle?.target_days || 35;
+    
     useEffect(() => {
-        const timer = setTimeout(() => setProgress(51), 300);
-
-        const storedHasCage = localStorage.getItem('terna_kuy_has_cage');
-        const storedCageData = localStorage.getItem('terna_kuy_cage_data');
-        if (storedHasCage === 'true' && storedCageData) {
-            try {
-                const data = JSON.parse(storedCageData);
-                if (data.kodeKandang) {
-                    setCageName(data.kodeKandang);
-                }
-                if (data.jumlahBibit) {
-                    setPopulation(`${data.jumlahBibit} Ekor`);
-                }
-            } catch (e) {
-                console.error('Error parsing cage data', e);
-            }
+        if (currentDay && targetDays) {
+            const pct = Math.min(100, Math.round((currentDay / targetDays) * 100));
+            const timer = setTimeout(() => setProgress(pct), 300);
+            return () => clearTimeout(timer);
         }
-
-        return () => clearTimeout(timer);
-    }, []);
+    }, [currentDay, targetDays]);
 
     return (
         <div className="cycle-card">
@@ -34,21 +23,21 @@ export default function CycleCard() {
                     <span className="cycle-badge-dot" />
                     SIKLUS AKTIF
                 </div>
-                <div className="cycle-day">Hari 18</div>
+                <div className="cycle-day">Hari {currentDay}</div>
             </div>
 
             <div className="cycle-title-row">
-                <h2 className="cycle-title">Kandang {cageName}</h2>
-                <button className="cycle-arrow" aria-label="Detail kandang">
+                <h2 className="cycle-title">Kandang {cageCode}</h2>
+                <Link href={route('cycle.show', { cycle: activeCycle.id })} className="cycle-arrow" aria-label="Detail kandang" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="9 18 15 12 9 6" />
                     </svg>
-                </button>
+                </Link>
             </div>
 
             <div className="cycle-info">
                 <span className="cycle-population">Populasi : {population}</span>
-                <span className="cycle-target">(Target 35 hari)</span>
+                <span className="cycle-target">(Target {targetDays} hari)</span>
             </div>
 
             <div className="cycle-progress-container">

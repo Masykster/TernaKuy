@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    'openweathermap' => [
+        'key' => env('OPENWEATHER_API_KEY'),
+        'base_url' => 'https://api.openweathermap.org/data/2.5',
+    ],
+
+    'commodities' => [
+        'key' => env('COMMODITIES_API_KEY'),
+    ],
+
+    'exchangerate' => [
+        'key' => env('EXCHANGERATE_API_KEY'),
+    ],
+
 ];
