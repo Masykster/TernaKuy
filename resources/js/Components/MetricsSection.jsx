@@ -99,6 +99,7 @@ export default function MetricsSection({ latestRecord, ipScore }) {
                                 width={14}
                                 height={14}
                                 className="metric-status-icon-img"
+                                loading="lazy"
                             />
                         )}
                         {metric.statusText}

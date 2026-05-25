@@ -140,6 +140,7 @@ export default function WeatherForecast({ forecast = [] }) {
                         width={12}
                         height={12}
                         className="weather-link-icon-img"
+                        loading="lazy"
                     />
                 </button>
             </div>
@@ -366,6 +367,7 @@ export default function WeatherForecast({ forecast = [] }) {
                                 width={12}
                                 height={12}
                                 className="weather-humidity-icon-img"
+                                loading="lazy"
                             />
                             {item.humidity}%
                         </div>

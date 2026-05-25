@@ -110,6 +110,7 @@ export default function Dashboard({ activeCycles = [], weather, weather_forecast
                             <img
                                 src="/images/PRIMARY LOGO 2.png"
                                 alt="Angonku.id"
+                                loading="lazy"
                                 width={100}
                                 height={28}
                                 style={{ height: '28px', objectFit: 'contain' }}
@@ -121,6 +122,7 @@ export default function Dashboard({ activeCycles = [], weather, weather_forecast
                                 <img
                                     src="/images/material-symbols_history-rounded.png"
                                     alt="History"
+                                    loading="lazy"
                                     width={20}
                                     height={20}
                                     style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }}
@@ -130,6 +132,7 @@ export default function Dashboard({ activeCycles = [], weather, weather_forecast
                                 <img
                                     src="/images/mingcute_notification-fill.png"
                                     alt="Notification"
+                                    loading="lazy"
                                     width={20}
                                     height={20}
                                     style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }}
@@ -256,6 +259,7 @@ export default function Dashboard({ activeCycles = [], weather, weather_forecast
                                     <img
                                         src="/images/mingcute_right-fill.png"
                                         alt="Detail"
+                                        loading="lazy"
                                         width={18}
                                         height={18}
                                         style={{ width: '18px', height: '18px', filter: 'brightness(0) invert(1)' }}

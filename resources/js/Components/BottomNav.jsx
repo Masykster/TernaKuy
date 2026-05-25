@@ -24,6 +24,7 @@ export default function BottomNav({ activeTab = 'home' }) {
                     width={24}
                     height={24}
                     className="fab-icon-img"
+                    loading="lazy"
                 />
             </Link>
 
@@ -77,6 +78,7 @@ function HomeIcon({ active }) {
             width={24}
             height={24}
             className={`nav-icon-img ${active ? 'active' : ''}`}
+            loading="lazy"
         />
     );
 }
@@ -89,6 +91,7 @@ function TimelineIcon({ active }) {
             width={24}
             height={24}
             className={`nav-icon-img ${active ? 'active' : ''}`}
+            loading="lazy"
         />
     );
 }
@@ -101,6 +104,7 @@ function KesehatanIcon({ active }) {
             width={24}
             height={24}
             className={`nav-icon-img ${active ? 'active' : ''}`}
+            loading="lazy"
         />
     );
 }
@@ -113,6 +117,7 @@ function ProfilIcon({ active }) {
             width={24}
             height={24}
             className={`nav-icon-img ${active ? 'active' : ''}`}
+            loading="lazy"
         />
     );
 }

@@ -86,3 +86,5 @@ yarn-error.log*
 # ==============================
 .agents/
 config/.agents/
+/workflow/
+

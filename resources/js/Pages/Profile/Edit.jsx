@@ -309,6 +309,7 @@ export default function Edit({ auth, dbCages = [], dbFarms = [] }) {
                                     src="/images/mingcute_right-fill.png" 
                                     alt="Chevron" 
                                     className="settings-chevron-right" 
+                                    loading="lazy"
                                 />
                             </div>
 
@@ -330,6 +331,7 @@ export default function Edit({ auth, dbCages = [], dbFarms = [] }) {
                                                             src="/images/ooui_home.png" 
                                                             alt="Farm Icon" 
                                                             className="settings-farm-icon" 
+                                                            loading="lazy"
                                                         />
                                                     </div>
                                                     <div className="settings-user-info">
@@ -341,6 +343,7 @@ export default function Edit({ auth, dbCages = [], dbFarms = [] }) {
                                                     src="/images/mingcute_right-fill.png" 
                                                     alt="Chevron" 
                                                     className="settings-chevron-right" 
+                                                    loading="lazy"
                                                 />
                                             </div>
 
@@ -385,6 +388,7 @@ export default function Edit({ auth, dbCages = [], dbFarms = [] }) {
                                                 <img 
                                                     src="/images/fe_plus.png" 
                                                     alt="Plus" 
+                                                    loading="lazy"
                                                     style={{ width: '12px', height: '12px', filter: 'invert(36%) sepia(21%) saturate(1142%) hue-rotate(78deg) brightness(97%) contrast(90%)' }} 
                                                 />
                                                 Tambah Kandang
@@ -418,6 +422,7 @@ export default function Edit({ auth, dbCages = [], dbFarms = [] }) {
                                         <img 
                                             src="/images/fe_plus.png" 
                                             alt="Plus" 
+                                            loading="lazy"
                                             style={{ width: '14px', height: '14px', filter: 'invert(36%) sepia(21%) saturate(1142%) hue-rotate(78deg) brightness(97%) contrast(90%)' }} 
                                         />
                                         Tambah Lokasi Baru
@@ -436,6 +441,7 @@ export default function Edit({ auth, dbCages = [], dbFarms = [] }) {
                                             <img 
                                                 src="/images/fe_plus.png" 
                                                 alt="Plus" 
+                                                loading="lazy"
                                                 style={{ width: '12px', height: '12px', filter: 'invert(36%) sepia(21%) saturate(1142%) hue-rotate(78deg) brightness(97%) contrast(90%)' }} 
                                             />
                                             Setup Kandang Baru

@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libpq-dev \
     zip \
     unzip \
     libzip-dev
@@ -31,8 +32,14 @@ RUN apt-get update && apt-get install -y \
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
+# Install PHP extensions (pdo_pgsql for PostgreSQL, opcache, redis)
+RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip opcache
+
+# Install Redis extension via PECL
+RUN pecl install redis && docker-php-ext-enable redis
+
+# Copy OPcache production config
+COPY config/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
