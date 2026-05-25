@@ -41,8 +41,8 @@ RUN pecl install redis && docker-php-ext-enable redis
 # Copy OPcache production config
 COPY config/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
+# Enable Apache mod_rewrite & ensure only prefork MPM is enabled to avoid conflicts
+RUN a2enmod rewrite && a2dismod mpm_event mpm_worker && a2enmod mpm_prefork
 
 # Update Apache document root
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
