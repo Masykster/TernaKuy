@@ -41,8 +41,13 @@ RUN pecl install redis && docker-php-ext-enable redis
 # Copy OPcache production config
 COPY config/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
-# Enable Apache mod_rewrite & ensure only prefork MPM is enabled to avoid conflicts
-RUN a2enmod rewrite && a2dismod mpm_event mpm_worker && a2enmod mpm_prefork
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
+
+# Fix "More than one MPM loaded" — nuke all MPM symlinks, then enable only prefork
+RUN rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf \
+    && ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
+    && ln -sf /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
 
 # Update Apache document root
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
