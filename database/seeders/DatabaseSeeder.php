@@ -90,26 +90,8 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // Seed some tasks
-        \App\Models\TimelineTask::create([
-            'cycle_id' => $cycle->id,
-            'task_date' => now()->toDateString(),
-            'day_number' => 13,
-            'task_name' => 'Pemberian Vaksin Gumboro di Air Minum',
-            'category' => 'vaccination',
-            'is_system' => true,
-            'is_done' => false,
-        ]);
-
-        \App\Models\TimelineTask::create([
-            'cycle_id' => $cycle->id,
-            'task_date' => now()->toDateString(),
-            'day_number' => 13,
-            'task_name' => 'Pengecekan Ketinggian Sekam (Litter)',
-            'category' => 'management',
-            'is_system' => true,
-            'is_done' => true,
-        ]);
+        // Seed golden timeline tasks via service
+        \App\Services\GoldenTimelineService::seedForCycle($cycle);
 
         // Seed weather cache
         \App\Models\WeatherCache::create([

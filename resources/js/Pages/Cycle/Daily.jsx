@@ -92,14 +92,7 @@ export default function Daily({ cycle, prevRecord, dayNumber, todayDate }) {
                 
                 {/* Header hijau #2D6A4F */}
                 <div style={{ backgroundColor: '#2D6A4F', color: 'white', padding: '16px 20px 24px', borderRadius: '0 0 24px 24px', position: 'relative' }}>
-                    {/* Status Bar */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '16px', opacity: 0.9 }}>
-                        <span>12:30</span>
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                            <span>📶</span>
-                            <span>🔋</span>
-                        </div>
-                    </div>
+
 
                     {/* Back navigation & titles */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>

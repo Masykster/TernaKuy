@@ -1,8 +1,8 @@
 import { router } from '@inertiajs/react';
 
 export default function AgendaSection({ todayTasks = [] }) {
-    const toggleItem = (id) => {
-        router.patch(route('timeline-tasks.toggle', { task: id }), {}, {
+    const toggleItem = (task) => {
+        router.patch(route('timeline-tasks.toggle', { cycle: task.cycle_id, task: task.id }), {}, {
             preserveScroll: true
         });
     };
@@ -23,7 +23,7 @@ export default function AgendaSection({ todayTasks = [] }) {
                         <div
                             key={task.id}
                             className="agenda-item"
-                            onClick={() => toggleItem(task.id)}
+                            onClick={() => toggleItem(task)}
                             style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0', cursor: 'pointer' }}
                         >
                             <div className={`agenda-checkbox ${task.is_done ? 'checked' : 'unchecked'}`}>

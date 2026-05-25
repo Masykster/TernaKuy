@@ -1,21 +1,31 @@
 import { useState, useEffect, useRef } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 
-export default function SetupKandang() {
+export default function SetupKandang({ dbFarm, dbCoop, farmId }) {
     const [step, setStep] = useState(1);
     const [isEditing, setIsEditing] = useState(false);
 
     // Step 1 States
     const [namaFarm, setNamaFarm] = useState('');
     const [alamat, setAlamat] = useState('');
+    const [latitude, setLatitude] = useState(dbFarm?.latitude || '');
+    const [longitude, setLongitude] = useState(dbFarm?.longitude || '');
     const [showMap, setShowMap] = useState(false);
     const [leafletLoaded, setLeafletLoaded] = useState(false);
 
     // Step 2 States
     const [kodeKandang, setKodeKandang] = useState('');
-    const [komoditas, setKomoditas] = useState(''); // 'Ayam', 'Bebek', 'Lele', 'Nila'
+    const [komoditas, setKomoditas] = useState('Ayam'); // Default Ayam
     const [luasKandang, setLuasKandang] = useState('');
     const [jumlahBibit, setJumlahBibit] = useState('');
+    const [targetDays, setTargetDays] = useState('35');
+
+    useEffect(() => {
+        if (!isEditing) {
+            const recommended = { Ayam: '35', Bebek: '45', Lele: '90', Nila: '120' };
+            setTargetDays(recommended[komoditas] || '35');
+        }
+    }, [komoditas, isEditing]);
 
     // Leaflet map refs & instances
     const mapInstanceRef = useRef(null);
@@ -26,22 +36,38 @@ export default function SetupKandang() {
         const params = new URLSearchParams(window.location.search);
         if (params.get('edit') === 'true') {
             setIsEditing(true);
-            const storedCageData = localStorage.getItem('terna_kuy_cage_data');
-            if (storedCageData) {
-                try {
-                    const data = JSON.parse(storedCageData);
-                    setNamaFarm(data.namaFarm || '');
-                    setAlamat(data.alamat || '');
-                    setKodeKandang(data.kodeKandang || '');
-                    setKomoditas(data.komoditas || '');
-                    setLuasKandang(data.luasKandang || '');
-                    setJumlahBibit(data.jumlahBibit || '');
-                } catch (e) {
-                    // ignore
+            if (dbFarm) {
+                setNamaFarm(dbFarm.name || '');
+                setAlamat(dbFarm.address || '');
+                setLatitude(dbFarm.latitude || '');
+                setLongitude(dbFarm.longitude || '');
+                const speciesMap = { broiler: 'Ayam', bebek: 'Bebek', lele: 'Lele', nila: 'Nila' };
+                setKomoditas(speciesMap[dbFarm.species] || 'Ayam');
+                if (dbCoop) {
+                    setKodeKandang(dbCoop.coop_code || '');
+                    setLuasKandang(dbCoop.area_m2 ? String(dbCoop.area_m2) : '');
+                    setJumlahBibit(dbCoop.capacity ? String(dbCoop.capacity) : '');
+                    setTargetDays(dbCoop.active_cycle_target_days ? String(dbCoop.active_cycle_target_days) : '35');
+                }
+            } else {
+                const storedCageData = localStorage.getItem('terna_kuy_cage_data');
+                if (storedCageData) {
+                    try {
+                        const data = JSON.parse(storedCageData);
+                        setNamaFarm(data.namaFarm || '');
+                        setAlamat(data.alamat || '');
+                        setKodeKandang(data.kodeKandang || '');
+                        setKomoditas(data.komoditas || 'Ayam');
+                        setLuasKandang(data.luasKandang || '');
+                        setJumlahBibit(data.jumlahBibit || '');
+                        setTargetDays(data.targetDays || '35');
+                    } catch (e) {
+                        // ignore
+                    }
                 }
             }
         }
-    }, []);
+    }, [dbFarm, dbCoop]);
 
     // Dynamic Leaflet asset injection
     useEffect(() => {
@@ -62,6 +88,29 @@ export default function SetupKandang() {
         };
         document.head.appendChild(script);
     }, []);
+
+    // Helper for reverse geocoding using Nominatim API
+    const getReverseGeocoding = async (lat, lng) => {
+        setAlamat('Memuat alamat...');
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`, {
+                headers: {
+                    'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7'
+                }
+            });
+            const geoData = await res.json();
+            if (geoData && geoData.display_name) {
+                let addr = geoData.display_name;
+                addr = addr.replace(/, Indonesia$/, ''); // Clean up trailing country
+                setAlamat(addr);
+            } else {
+                setAlamat(`Lokasi: ${lat}, ${lng}`);
+            }
+        } catch (error) {
+            console.error('Error reverse geocoding:', error);
+            setAlamat(`Lokasi: ${lat}, ${lng}`);
+        }
+    };
 
     // Map initialization when container mounts
     useEffect(() => {
@@ -92,16 +141,22 @@ export default function SetupKandang() {
                 // Update location on dragend
                 marker.on('dragend', () => {
                     const position = marker.getLatLng();
-                    const lat = position.lat.toFixed(4);
-                    const lng = position.lng.toFixed(4);
-                    setAlamat(`Lokasi Peta: ${lat}, ${lng}`);
+                    const latVal = position.lat.toFixed(7);
+                    const lngVal = position.lng.toFixed(7);
+                    setLatitude(latVal);
+                    setLongitude(lngVal);
+                    getReverseGeocoding(latVal, lngVal);
                 });
 
                 // Update location on map click
                 map.on('click', (e) => {
                     const { lat, lng } = e.latlng;
                     marker.setLatLng([lat, lng]);
-                    setAlamat(`Lokasi Peta: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+                    const latVal = lat.toFixed(7);
+                    const lngVal = lng.toFixed(7);
+                    setLatitude(latVal);
+                    setLongitude(lngVal);
+                    getReverseGeocoding(latVal, lngVal);
                 });
 
                 mapInstanceRef.current = map;
@@ -127,12 +182,16 @@ export default function SetupKandang() {
     // Geolocation handlers
     const handleGPSClick = () => {
         if (navigator.geolocation) {
+            setAlamat('Memuat lokasi GPS...');
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-                    const coordStr = `Lokasi Otomatis: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-                    setAlamat(coordStr);
+                    const latVal = lat.toFixed(7);
+                    const lngVal = lng.toFixed(7);
+                    setLatitude(latVal);
+                    setLongitude(lngVal);
+                    getReverseGeocoding(latVal, lngVal);
 
                     if (mapInstanceRef.current && markerInstanceRef.current) {
                         mapInstanceRef.current.setView([lat, lng], 15);
@@ -141,21 +200,31 @@ export default function SetupKandang() {
                 },
                 (error) => {
                     console.warn('Geolocation failed or permission denied, using mock fallback', error);
-                    const mockCoordStr = 'Lokasi Otomatis: -7.3871, 112.7194';
-                    setAlamat(mockCoordStr);
+                    const mockLat = -7.3871;
+                    const mockLng = 112.7194;
+                    const latVal = mockLat.toFixed(7);
+                    const lngVal = mockLng.toFixed(7);
+                    setLatitude(latVal);
+                    setLongitude(lngVal);
+                    getReverseGeocoding(latVal, lngVal);
 
                     if (mapInstanceRef.current && markerInstanceRef.current) {
-                        mapInstanceRef.current.setView([-7.3871, 112.7194], 15);
-                        markerInstanceRef.current.setLatLng([-7.3871, 112.7194]);
+                        mapInstanceRef.current.setView([mockLat, mockLng], 15);
+                        markerInstanceRef.current.setLatLng([mockLat, mockLng]);
                     }
                 }
             );
         } else {
-            const mockCoordStr = 'Lokasi Otomatis: -7.3871, 112.7194';
-            setAlamat(mockCoordStr);
+            const mockLat = -7.3871;
+            const mockLng = 112.7194;
+            const latVal = mockLat.toFixed(7);
+            const lngVal = mockLng.toFixed(7);
+            setLatitude(latVal);
+            setLongitude(lngVal);
+            getReverseGeocoding(latVal, lngVal);
             if (mapInstanceRef.current && markerInstanceRef.current) {
-                mapInstanceRef.current.setView([-7.3871, 112.7194], 15);
-                markerInstanceRef.current.setLatLng([-7.3871, 112.7194]);
+                mapInstanceRef.current.setView([mockLat, mockLng], 15);
+                markerInstanceRef.current.setLatLng([mockLat, mockLng]);
             }
         }
     };
@@ -178,6 +247,7 @@ export default function SetupKandang() {
     // Save configuration and redirect
     const handleSaveSetup = () => {
         if (step2Valid) {
+            // Local fallback
             localStorage.setItem('terna_kuy_has_cage', 'true');
             const cageData = {
                 namaFarm,
@@ -185,10 +255,25 @@ export default function SetupKandang() {
                 kodeKandang,
                 komoditas,
                 luasKandang,
-                jumlahBibit
+                jumlahBibit,
+                targetDays
             };
             localStorage.setItem('terna_kuy_cage_data', JSON.stringify(cageData));
-            router.visit(isEditing ? '/profile' : '/');
+            
+            // Database update/save
+            router.post(route('setup-kandang.save'), {
+                namaFarm,
+                alamat,
+                latitude,
+                longitude,
+                kodeKandang,
+                luasKandang,
+                jumlahBibit,
+                komoditas,
+                is_editing: isEditing,
+                target_days: targetDays,
+                farm_id: farmId || new URLSearchParams(window.location.search).get('farm_id')
+            });
         }
     };
 
@@ -261,29 +346,7 @@ export default function SetupKandang() {
 
             <div className="mobile-container setup-page-container">
                 <div className="main-scroll" style={{ flex: 1, paddingBottom: '20px' }}>
-                    {/* Status Bar */}
-                    <div className="status-bar" style={{ padding: '8px 20px 16px' }}>
-                        <span>12:30</span>
-                        <div className="status-bar-icons">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#1A2E1A">
-                                <rect x="1" y="14" width="3" height="8" rx="1" />
-                                <rect x="6" y="10" width="3" height="12" rx="1" />
-                                <rect x="11" y="6" width="3" height="16" rx="1" />
-                                <rect x="16" y="2" width="3" height="20" rx="1" />
-                            </svg>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A2E1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M5 12.55a11 11 0 0 1 14.08 0" />
-                                <path d="M1.42 9a16 16 0 0 1 21.16 0" />
-                                <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
-                                <line x1="12" y1="20" x2="12.01" y2="20" />
-                            </svg>
-                            <svg width="22" height="12" viewBox="0 0 28 14" fill="none">
-                                <rect x="0.5" y="0.5" width="23" height="13" rx="3" stroke="#1A2E1A" strokeWidth="1" />
-                                <rect x="2" y="2" width="18" height="10" rx="2" fill="#327039" />
-                                <rect x="24.5" y="4" width="2.5" height="6" rx="1" fill="#1A2E1A" />
-                            </svg>
-                        </div>
-                    </div>
+
 
                     {/* Step Title Header */}
                     <div className="setup-header-row">
@@ -430,6 +493,17 @@ export default function SetupKandang() {
                                         placeholder="Berapa ekor bibit?"
                                         value={jumlahBibit}
                                         onChange={(e) => setJumlahBibit(e.target.value)}
+                                    />
+                                </div>
+
+                                <label className="setup-input-label">TARGET SIKLUS (HARI)</label>
+                                <div className="setup-input-container">
+                                    <input
+                                        type="number"
+                                        className="setup-input"
+                                        placeholder="Misal: 35"
+                                        value={targetDays}
+                                        onChange={(e) => setTargetDays(e.target.value)}
                                     />
                                 </div>
 

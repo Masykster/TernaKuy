@@ -12,6 +12,8 @@ export default function AIRecommendation() {
                 <img
                     src="/images/image 3.png"
                     alt="AI Mascot"
+                    width={64}
+                    height={64}
                     loading="lazy"
                 />
             </div>

@@ -14,24 +14,24 @@
    ====================================== */
 
 :root {
-    --color-forest: #327039;
-    --color-earth: #1A5C20;
-    --color-wheat: #F0E649;
-    --color-cherry: #F8A03D;
-    --color-russet: #6EA13D;
-    --color-orange: #E8663B;
-    --color-cream: #FFF8EE;
+    --color-forest: #327039;       /* Forest Fern */
+    --color-earth: #133020;        /* Tilled Earth */
+    --color-wheat: #F0BE49;        /* Wheat Field Sunrise */
+    --color-cherry: #D1603D;       /* Cherry Groves */
+    --color-russet: #6E433D;       /* Russet */
+    --color-orange: #D1603D;       /* Cherry Groves orange-red accent */
+    --color-cream: #FFF8EE;        /* Premium Cream Background */
     --color-cream-dark: #F5F0E8;
-    --color-bg: #F7F3ED;
+    --color-bg: #F7F3ED;           /* Off-white background */
     --color-card: #FFFFFF;
-    --color-text-dark: #1A2E1A;
-    --color-text-green: #1A3A1A;
+    --color-text-dark: #133020;    /* Tilled Earth primary dark text */
+    --color-text-green: #327039;   /* Forest Fern secondary header text */
     --color-text-secondary: #6B7B6B;
     --color-green-light: #E8F5E9;
     --color-red-light: #FFF0ED;
-    --color-red: #E05A33;
-    --color-green-safe: #2E8B3D;
-    --color-yellow-warn: #D4A017;
+    --color-red: #D1603D;          /* Cherry Groves red accent */
+    --color-green-safe: #327039;   /* Forest Fern safe green */
+    --color-yellow-warn: #F0BE49;  /* Wheat Field Sunrise warn gold */
 }
 
 * {
@@ -700,13 +700,13 @@ body {
 /* FAB Button */
 .fab-button {
     position: fixed;
-    bottom: 76px;
+    bottom: 24px;
     left: 50%;
     transform: translateX(-50%);
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--color-forest) 0%, #3D9B46 100%);
+    background: var(--color-forest);
     color: white;
     border: none;
     display: flex;
@@ -736,9 +736,11 @@ body {
     justify-content: space-around;
     align-items: center;
     padding: 10px 16px 20px;
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    border-top: none;
     z-index: 99;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .nav-item {
@@ -794,6 +796,7 @@ body {
     width: 24px;
     height: 24px;
     object-fit: contain;
+    filter: brightness(0) invert(1);
 }
 
 .nav-label {
@@ -898,6 +901,8 @@ body {
 
 .input-page-container {
     padding-bottom: 40px;
+    background-color: #F9EED9; /* Warm cream background */
+    min-height: 100vh;
 }
 
 .input-page-header {
@@ -918,6 +923,10 @@ body {
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     transition: all 0.2s ease;
+}
+
+.back-btn-circle.orange {
+    background: #E8663B; /* Orange back button in daily input */
 }
 
 .back-btn-circle:active {
@@ -992,13 +1001,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    justify-content: space-between;
-    height: 64px;
+    justify-content: center;
 }
 
 .input-cage-badge {
-    background: var(--color-wheat);
-    color: var(--color-text-dark);
+    background: #F8A03D; /* Orange-yellow badge background */
+    color: #1A2E1A; /* Dark green/black text for high contrast */
     padding: 4px 12px;
     border-radius: 12px;
     font-size: 11px;
@@ -1031,18 +1039,18 @@ body {
 
 .input-group-card {
     background: white;
-    border-radius: 20px;
-    margin: 14px 16px;
-    padding: 16px 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-    border: 1px solid #F2EBE0;
+    border-radius: 24px; /* Premium larger border radius */
+    margin: 16px 16px;
+    padding: 20px 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.015);
+    border: 1px solid #F3EDE4;
 }
 
 .input-group-label-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .input-group-label {
@@ -1056,8 +1064,8 @@ body {
 .input-group-sublabel {
     font-size: 12px;
     color: #8C968C;
-    margin-top: -4px;
-    margin-bottom: 10px;
+    margin-top: -6px;
+    margin-bottom: 12px;
 }
 
 .input-group-badge-optional {
@@ -1073,12 +1081,12 @@ body {
 .input-box-container {
     background: #FFF8EE;
     border: 1.5px solid #F5EAD6;
-    border-radius: 12px;
-    height: 60px;
+    border-radius: 16px; /* Rounder corner for premium feel */
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     padding: 0 16px;
     transition: all 0.2s ease;
 }
@@ -1092,7 +1100,7 @@ body {
     width: 100%;
     background: transparent;
     border: none;
-    font-size: 32px;
+    font-size: 34px;
     font-weight: 700;
     color: var(--color-text-dark);
     text-align: center;
@@ -1109,13 +1117,15 @@ body {
 }
 
 .cumulative-badge {
-    background: #CBE6CC;
-    color: #327039;
-    border-radius: 10px;
+    background: #D4EFD7; /* Light green background */
+    border: 1px solid #A1DFA8; /* Light green border */
+    color: #2E8B3D; /* Forest green text */
+    border-radius: 12px;
     padding: 8px 12px;
     font-size: 13px;
     font-weight: 700;
     text-align: center;
+    margin-top: 4px;
 }
 
 .condition-buttons-row {

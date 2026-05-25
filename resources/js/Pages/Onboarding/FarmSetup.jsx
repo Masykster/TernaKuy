@@ -40,6 +40,38 @@ export default function FarmSetup() {
         document.head.appendChild(script);
     }, []);
 
+    // Helper for reverse geocoding using Nominatim API
+    const getReverseGeocoding = async (lat, lng) => {
+        setData('farm_address', 'Memuat alamat...');
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`, {
+                headers: {
+                    'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7'
+                }
+            });
+            const geoData = await res.json();
+            if (geoData && geoData.display_name) {
+                let addr = geoData.display_name;
+                addr = addr.replace(/, Indonesia$/, ''); // Clean up trailing country
+                setData(prev => ({
+                    ...prev,
+                    farm_address: addr
+                }));
+            } else {
+                setData(prev => ({
+                    ...prev,
+                    farm_address: `Lokasi: ${lat}, ${lng}`
+                }));
+            }
+        } catch (error) {
+            console.error('Error reverse geocoding:', error);
+            setData(prev => ({
+                ...prev,
+                farm_address: `Lokasi: ${lat}, ${lng}`
+            }));
+        }
+    };
+
     // Map initialization when container mounts
     useEffect(() => {
         if (showMap && leafletLoaded && !mapInstanceRef.current) {
@@ -67,24 +99,28 @@ export default function FarmSetup() {
                 // Update location on dragend
                 marker.on('dragend', () => {
                     const position = marker.getLatLng();
+                    const latVal = position.lat.toFixed(7);
+                    const lngVal = position.lng.toFixed(7);
                     setData(prev => ({
                         ...prev,
-                        latitude: position.lat.toFixed(7),
-                        longitude: position.lng.toFixed(7),
-                        farm_address: prev.farm_address || `Lokasi Peta: ${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`
+                        latitude: latVal,
+                        longitude: lngVal
                     }));
+                    getReverseGeocoding(latVal, lngVal);
                 });
 
                 // Update location on map click
                 map.on('click', (e) => {
                     const { lat, lng } = e.latlng;
                     marker.setLatLng([lat, lng]);
+                    const latVal = lat.toFixed(7);
+                    const lngVal = lng.toFixed(7);
                     setData(prev => ({
                         ...prev,
-                        latitude: lat.toFixed(7),
-                        longitude: lng.toFixed(7),
-                        farm_address: prev.farm_address || `Lokasi Peta: ${lat.toFixed(4)}, ${lng.toFixed(4)}`
+                        latitude: latVal,
+                        longitude: lngVal
                     }));
+                    getReverseGeocoding(latVal, lngVal);
                 });
 
                 mapInstanceRef.current = map;
@@ -110,17 +146,23 @@ export default function FarmSetup() {
     // Geolocation handlers
     const handleGPSClick = () => {
         if (navigator.geolocation) {
+            setData(prev => ({
+                ...prev,
+                farm_address: 'Memuat lokasi GPS...'
+            }));
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
+                    const latVal = lat.toFixed(7);
+                    const lngVal = lng.toFixed(7);
                     
                     setData(prev => ({
                         ...prev,
-                        latitude: lat.toFixed(7),
-                        longitude: lng.toFixed(7),
-                        farm_address: prev.farm_address || `Lokasi Otomatis: ${lat.toFixed(4)}, ${lng.toFixed(4)}`
+                        latitude: latVal,
+                        longitude: lngVal
                     }));
+                    getReverseGeocoding(latVal, lngVal);
 
                     if (mapInstanceRef.current && markerInstanceRef.current) {
                         mapInstanceRef.current.setView([lat, lng], 15);
@@ -131,13 +173,15 @@ export default function FarmSetup() {
                     console.warn('Geolocation failed or permission denied, using mock fallback', error);
                     const mockLat = -7.3871;
                     const mockLng = 112.7194;
+                    const latVal = mockLat.toFixed(7);
+                    const lngVal = mockLng.toFixed(7);
                     
                     setData(prev => ({
                         ...prev,
-                        latitude: mockLat.toFixed(7),
-                        longitude: mockLng.toFixed(7),
-                        farm_address: prev.farm_address || `Lokasi Otomatis: ${mockLat}, ${mockLng}`
+                        latitude: latVal,
+                        longitude: lngVal
                     }));
+                    getReverseGeocoding(latVal, lngVal);
 
                     if (mapInstanceRef.current && markerInstanceRef.current) {
                         mapInstanceRef.current.setView([mockLat, mockLng], 15);
@@ -181,29 +225,7 @@ export default function FarmSetup() {
 
             <div className="mobile-container setup-page-container">
                 <form onSubmit={handleSubmit} className="main-scroll" style={{ flex: 1, paddingBottom: '20px', display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-                    {/* Status Bar */}
-                    <div className="status-bar" style={{ padding: '8px 20px 16px' }}>
-                        <span>12:30</span>
-                        <div className="status-bar-icons">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#1A2E1A">
-                                <rect x="1" y="14" width="3" height="8" rx="1" />
-                                <rect x="6" y="10" width="3" height="12" rx="1" />
-                                <rect x="11" y="6" width="3" height="16" rx="1" />
-                                <rect x="16" y="2" width="3" height="20" rx="1" />
-                            </svg>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A2E1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M5 12.55a11 11 0 0 1 14.08 0" />
-                                <path d="M1.42 9a16 16 0 0 1 21.16 0" />
-                                <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
-                                <line x1="12" y1="20" x2="12.01" y2="20" />
-                            </svg>
-                            <svg width="22" height="12" viewBox="0 0 28 14" fill="none">
-                                <rect x="0.5" y="0.5" width="23" height="13" rx="3" stroke="#1A2E1A" strokeWidth="1" />
-                                <rect x="2" y="2" width="18" height="10" rx="2" fill="#327039" />
-                                <rect x="24.5" y="4" width="2.5" height="6" rx="1" fill="#1A2E1A" />
-                            </svg>
-                        </div>
-                    </div>
+
 
                     {/* Step Title Header */}
                     <div className="setup-header-row" style={{ padding: '0 20px' }}>

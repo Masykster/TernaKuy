@@ -18,9 +18,51 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $user = $request->user();
+        
+        // Fetch coops from DB
+        $coops = \App\Models\Coop::whereHas('farm', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        })->with('farm')->get()->map(function ($coop) {
+            // Find active cycle population
+            $activeCycle = $coop->cycles()->where('status', 'active')->first();
+            $pop = $activeCycle ? $activeCycle->doc_count : $coop->capacity;
+            return [
+                'id' => $coop->coop_code,
+                'status' => 'AKTIF',
+                'population' => $pop . ' EKOR',
+                'farmName' => $coop->farm->name,
+                'is_db' => true,
+            ];
+        });
+
+        // Fetch farms with nested coops and cycles
+        $farms = $user->farms()->with(['coops.cycles'])->get()->map(function ($farm) {
+            return [
+                'id' => $farm->id,
+                'name' => $farm->name,
+                'address' => $farm->address,
+                'latitude' => $farm->latitude,
+                'longitude' => $farm->longitude,
+                'species' => $farm->species,
+                'coops' => $farm->coops->map(function ($coop) {
+                    $activeCycle = $coop->cycles()->where('status', 'active')->first();
+                    $pop = $activeCycle ? $activeCycle->doc_count : $coop->capacity;
+                    return [
+                        'id' => $coop->coop_code,
+                        'status' => 'AKTIF',
+                        'population' => $pop . ' EKOR',
+                        'is_db' => true,
+                    ];
+                })->values()->all(),
+            ];
+        });
+
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
+            'dbCages' => $coops,
+            'dbFarms' => $farms,
         ]);
     }
 

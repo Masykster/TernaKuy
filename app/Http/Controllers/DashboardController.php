@@ -44,6 +44,43 @@ class DashboardController extends Controller
           ])
           ->get();
 
+        if ($activeCycles->isEmpty()) {
+            $coopsWithoutActiveCycle = \App\Models\Coop::whereHas('farm', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })->whereDoesntHave('cycles', function ($q) {
+                $q->where('status', 'active');
+            })->get();
+
+            if ($coopsWithoutActiveCycle->isNotEmpty()) {
+                foreach ($coopsWithoutActiveCycle as $coop) {
+                    $activeCycle = Cycle::create([
+                        'coop_id' => $coop->id,
+                        'doc_date' => Carbon::today()->toDateString(),
+                        'doc_count' => $coop->capacity,
+                        'strain' => 'Cobb',
+                        'supplier_doc' => 'Kemitraan',
+                        'price_doc' => 7000,
+                        'target_days' => 35,
+                        'status' => 'active',
+                    ]);
+                    \App\Services\GoldenTimelineService::seedForCycle($activeCycle);
+                }
+
+                $activeCycles = Cycle::whereHas('coop.farm', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })->where('status', 'active')
+                  ->with([
+                      'coop.farm',
+                      'dailyRecords',
+                      'healthRecords',
+                      'timelineTasks' => function ($q) use ($todayStr) {
+                          $q->whereDate('task_date', $todayStr);
+                      }
+                  ])
+                  ->get();
+            }
+        }
+
         $activeCyclesData = [];
 
         foreach ($activeCycles as $cycle) {
@@ -109,28 +146,61 @@ class DashboardController extends Controller
             ];
         }
 
-        // 2. Fetch latest weather cache for the user's farms
+        // 2. Fetch weather forecast for active farm (or user's first active farm)
+        $activeFarm = null;
+        if (count($activeCycles) > 0) {
+            $activeFarm = $activeCycles[0]->coop->farm;
+        } else {
+            $activeFarm = $user->farms()->where('is_active', true)->first() ?? $user->farms()->first();
+        }
+
+        $weatherForecast = [];
+        if ($activeFarm) {
+            $weatherForecast = app(\App\Services\WeatherService::class)->getForecast($activeFarm);
+        } else {
+            $weatherForecast = app(\App\Services\WeatherService::class)->getFallbackForecast();
+        }
+
         $farmIds = $user->farms()->pluck('id');
         $weather = WeatherCache::whereIn('farm_id', $farmIds)
             ->orderBy('fetched_at', 'desc')
             ->first();
 
-        // 3. Fetch latest commodity prices for CORN, SOYBEAN, and RICEBRAN
-        $commodity = CommodityPrice::orderBy('recorded_date', 'desc')
-            ->get()
-            ->unique('commodity')
-            ->values();
+        // 3. Fetch latest commodity prices — only 1 row per commodity via DB subquery
+        $commodity = CommodityPrice::whereIn('id', function ($query) {
+            $query->selectRaw('MAX(id)')
+                ->from('commodity_prices')
+                ->groupBy('commodity');
+        })->orderBy('recorded_date', 'desc')->get();
 
         // 4. Fetch unread notifications count
         $unreadNotifications = Notification::where('user_id', $user->id)
             ->where('is_read', false)
             ->count();
 
+        // 5. Fetch recent notifications
+        $notifications = Notification::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(15)
+            ->get();
+
         return Inertia::render('Dashboard', [
             'activeCycles' => $activeCyclesData,
             'weather' => $weather,
+            'weather_forecast' => $weatherForecast,
             'commodity' => $commodity,
             'unread_notifications' => $unreadNotifications,
+            'notifications' => $notifications,
         ]);
+    }
+
+    /**
+     * Mark a notification as read.
+     */
+    public function markNotificationAsRead($id)
+    {
+        $notification = Notification::where('user_id', Auth::id())->findOrFail($id);
+        $notification->update(['is_read' => true]);
+        return redirect()->back();
     }
 }

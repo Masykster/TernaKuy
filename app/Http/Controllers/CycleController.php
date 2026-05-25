@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Coop;
 use App\Models\Cycle;
+use App\Services\GoldenTimelineService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -28,10 +29,16 @@ class CycleController extends Controller
     {
         $coops = Coop::whereHas('farm', function ($q) {
             $q->where('user_id', Auth::id());
-        })->get();
+        })->with('farm:id,species')->get();
 
         return Inertia::render('Cycle/Create', [
-            'coops' => $coops
+            'coops' => $coops,
+            'speciesRanges' => [
+                'broiler' => GoldenTimelineService::getTargetDaysRange('broiler'),
+                'bebek'   => GoldenTimelineService::getTargetDaysRange('bebek'),
+                'lele'    => GoldenTimelineService::getTargetDaysRange('lele'),
+                'nila'    => GoldenTimelineService::getTargetDaysRange('nila'),
+            ],
         ]);
     }
 
@@ -41,22 +48,25 @@ class CycleController extends Controller
             'coop_id' => 'required|exists:coops,id',
             'doc_date' => 'required|date',
             'doc_count' => 'required|integer|min:1',
-            'strain' => 'required|in:Ross,Cobb,Lohmann,Other',
+            'strain' => 'nullable|string|max:50',
             'supplier_doc' => 'nullable|string|max:255',
             'price_doc' => 'nullable|numeric|min:0',
-            'target_days' => 'required|integer|between:28,45',
+            'target_days' => 'required|integer|between:1,365',
             'notes' => 'nullable|string',
         ]);
 
         $coop = Coop::findOrFail($validated['coop_id']);
         $this->authorize('update', $coop->farm);
 
-        Cycle::create($validated);
+        $cycle = Cycle::create($validated);
+        $cycle->load('coop.farm');
+
+        GoldenTimelineService::seedForCycle($cycle);
 
         return redirect()->route('dashboard');
     }
 
-    public function show(Cycle $cycle)
+    public function show(Request $request, Cycle $cycle)
     {
         $this->authorize('view', $cycle);
         $cycle->load(['coop.farm', 'timelineTasks' => function ($q) {
@@ -64,7 +74,8 @@ class CycleController extends Controller
         }]);
 
         return Inertia::render('Cycle/Show', [
-            'cycle' => $cycle
+            'cycle' => $cycle,
+            'filter' => $request->query('filter', 'all'),
         ]);
     }
 

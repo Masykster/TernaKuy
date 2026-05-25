@@ -17,14 +17,7 @@ export default function Withdrawal({ cycle, withdrawalStatus }) {
 
             <div className="mobile-container input-page-container">
                 <div className="main-scroll" style={{ paddingBottom: '60px' }}>
-                    {/* Header */}
-                    <div className="status-bar" style={{ padding: '8px 20px 16px' }}>
-                        <span>12:30</span>
-                        <div className="status-bar-icons">
-                            <span>📶</span>
-                            <span>🔋</span>
-                        </div>
-                    </div>
+
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 20px' }}>
                         <Link href={route('cycles.health.index', { cycle: cycle.id })} className="back-btn-circle" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>

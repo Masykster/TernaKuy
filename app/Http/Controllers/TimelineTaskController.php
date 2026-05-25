@@ -72,4 +72,53 @@ class TimelineTaskController extends Controller
 
         return redirect()->back();
     }
+
+    /**
+     * Update a timeline task.
+     */
+    public function update(Request $request, $cycleId, $taskId)
+    {
+        $cycle = Cycle::findOrFail($cycleId);
+        $this->authorize('update', $cycle->coop->farm);
+
+        $task = TimelineTask::where('cycle_id', $cycle->id)->findOrFail($taskId);
+
+        $validated = $request->validate([
+            'task_name' => 'required|string|max:200',
+            'task_date' => 'required|date',
+            'category' => 'required|in:vaccination,sampling,feeding,management,custom',
+            'notes' => 'nullable|string',
+        ]);
+
+        $docDate = Carbon::parse($cycle->doc_date);
+        $taskDate = Carbon::parse($validated['task_date']);
+        $dayNumber = $taskDate->diffInDays($docDate) + 1;
+        if ($taskDate->isBefore($docDate)) {
+            $dayNumber = 1;
+        }
+
+        $task->update([
+            'task_name' => $validated['task_name'],
+            'task_date' => $validated['task_date'],
+            'category' => $validated['category'],
+            'day_number' => $dayNumber,
+            'notes' => $validated['notes'] ?? null,
+        ]);
+
+        return redirect()->back()->with('success', 'Tugas berhasil diperbarui!');
+    }
+
+    /**
+     * Delete a timeline task.
+     */
+    public function destroy($cycleId, $taskId)
+    {
+        $cycle = Cycle::findOrFail($cycleId);
+        $this->authorize('update', $cycle->coop->farm);
+
+        $task = TimelineTask::where('cycle_id', $cycle->id)->findOrFail($taskId);
+        $task->delete();
+
+        return redirect()->back()->with('success', 'Tugas berhasil dihapus!');
+    }
 }

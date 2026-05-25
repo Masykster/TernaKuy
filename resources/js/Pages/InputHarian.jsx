@@ -46,33 +46,9 @@ export default function InputHarian() {
                             loading="eager"
                         />
 
-                        {/* Status Bar */}
-                        <div className="status-bar">
-                            <span>12:30</span>
-                            <div className="status-bar-icons">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#1A2E1A">
-                                    <rect x="1" y="14" width="3" height="8" rx="1" />
-                                    <rect x="6" y="10" width="3" height="12" rx="1" />
-                                    <rect x="11" y="6" width="3" height="16" rx="1" />
-                                    <rect x="16" y="2" width="3" height="20" rx="1" />
-                                </svg>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A2E1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M5 12.55a11 11 0 0 1 14.08 0" />
-                                    <path d="M1.42 9a16 16 0 0 1 21.16 0" />
-                                    <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
-                                    <line x1="12" y1="20" x2="12.01" y2="20" />
-                                </svg>
-                                <svg width="22" height="12" viewBox="0 0 28 14" fill="none">
-                                    <rect x="0.5" y="0.5" width="23" height="13" rx="3" stroke="#1A2E1A" strokeWidth="1" />
-                                    <rect x="2" y="2" width="18" height="10" rx="2" fill="#327039" />
-                                    <rect x="24.5" y="4" width="2.5" height="6" rx="1" fill="#1A2E1A" />
-                                </svg>
-                            </div>
-                        </div>
-
                         {/* Back Button */}
                         <div className="app-header">
-                            <Link href="/" className="back-btn-circle" aria-label="Kembali">
+                            <Link href="/" className="back-btn-circle orange" aria-label="Kembali">
                                 <img
                                     src="/images/LEFT.png"
                                     alt="Kembali"
@@ -102,13 +78,6 @@ export default function InputHarian() {
                         </div>
                         <div className="input-cage-right">
                             <span className="input-cage-badge">Hari 18</span>
-                            <button type="button" className="input-cage-arrow" aria-label="Detail Kandang">
-                                <img
-                                    src="/images/mingcute_right-fill.png"
-                                    alt="Chevron"
-                                    className="input-cage-arrow-icon"
-                                />
-                            </button>
                         </div>
                     </div>
 
@@ -136,7 +105,7 @@ export default function InputHarian() {
                         {/* Mati / Afkir */}
                         <div className="input-group-card">
                             <div className="input-group-label-row">
-                                <span className="input-group-label">Mati / Afkir (ekor)</span>
+                                <span className="input-group-label">MATI / AFKIR (EKOR)</span>
                             </div>
                             <div className="input-box-container">
                                 <input
@@ -155,7 +124,7 @@ export default function InputHarian() {
                         {/* Berat Sampling */}
                         <div className="input-group-card">
                             <div className="input-group-label-row">
-                                <span className="input-group-label">Berat Sampling (G)</span>
+                                <span className="input-group-label">BERAT SAMPLING (G)</span>
                                 <span className="input-group-badge-optional">OPSIONAL</span>
                             </div>
                             <div className="input-group-sublabel">
@@ -174,7 +143,7 @@ export default function InputHarian() {
 
                         {/* Kondisi Umum Kandang */}
                         <div className="input-group-card">
-                            <span className="input-group-label">Kondisi Umum Kandang</span>
+                            <span className="input-group-label">KONDISI UMUM KANDANG</span>
                             <div className="condition-buttons-row">
                                 <button
                                     type="button"
@@ -199,7 +168,7 @@ export default function InputHarian() {
                                 </button>
                             </div>
 
-                            <span className="input-group-label">Catatan (Opsional)</span>
+                            <span className="input-group-label">CATATAN (OPSIONAL)</span>
                             <div className="notes-textarea-container">
                                 <textarea
                                     value={catatan}

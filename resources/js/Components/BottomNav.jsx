@@ -10,7 +10,7 @@ export default function BottomNav({ activeTab = 'home' }) {
         { id: 'home', label: 'Home', icon: HomeIcon, href: '/' },
         { id: 'timeline', label: 'Timeline', icon: TimelineIcon, href: active_cycle_id ? route('cycle.show', { cycle: active_cycle_id }) : null },
         { id: 'spacer', label: '', icon: null },
-        { id: 'kesehatan', label: 'Kesehatan', icon: KesehatanIcon, href: null },
+        { id: 'kesehatan', label: 'Kesehatan', icon: KesehatanIcon, href: active_cycle_id ? route('cycles.health.index', { cycle: active_cycle_id }) : null },
         { id: 'profil', label: 'Profil', icon: ProfilIcon, href: '/profile' },
     ];
 
@@ -21,6 +21,8 @@ export default function BottomNav({ activeTab = 'home' }) {
                 <img
                     src="/images/fe_plus.png"
                     alt="Tambah"
+                    width={24}
+                    height={24}
                     className="fab-icon-img"
                 />
             </Link>
@@ -72,6 +74,8 @@ function HomeIcon({ active }) {
         <img
             src="/images/ooui_home.png"
             alt="Home"
+            width={24}
+            height={24}
             className={`nav-icon-img ${active ? 'active' : ''}`}
         />
     );
@@ -82,6 +86,8 @@ function TimelineIcon({ active }) {
         <img
             src="/images/ri_time-fill.png"
             alt="Timeline"
+            width={24}
+            height={24}
             className={`nav-icon-img ${active ? 'active' : ''}`}
         />
     );
@@ -92,6 +98,8 @@ function KesehatanIcon({ active }) {
         <img
             src="/images/ix_health-filled.png"
             alt="Kesehatan"
+            width={24}
+            height={24}
             className={`nav-icon-img ${active ? 'active' : ''}`}
         />
     );
@@ -102,6 +110,8 @@ function ProfilIcon({ active }) {
         <img
             src="/images/iconamoon_profile-fill.png"
             alt="Profil"
+            width={24}
+            height={24}
             className={`nav-icon-img ${active ? 'active' : ''}`}
         />
     );

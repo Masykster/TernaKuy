@@ -35,6 +35,7 @@ class OnboardingController extends Controller
             'coop_code' => 'required|string|max:20',
             'coop_type' => 'required|in:open_house,close_house',
             'capacity' => 'required|integer|min:1',
+            'species' => 'nullable|in:broiler,bebek,lele,nila',
         ]);
 
         DB::transaction(function () use ($validated) {
@@ -44,7 +45,7 @@ class OnboardingController extends Controller
                 'address' => $validated['farm_address'] ?? null,
                 'latitude' => $validated['latitude'] ?? null,
                 'longitude' => $validated['longitude'] ?? null,
-                'species' => 'broiler',
+                'species' => $validated['species'] ?? 'broiler',
                 'is_active' => true,
             ]);
 

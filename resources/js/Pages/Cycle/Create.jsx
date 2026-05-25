@@ -1,21 +1,63 @@
 import { useState, useEffect } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Create({ coops }) {
+export default function Create({ coops, speciesRanges }) {
     const todayStr = new Date().toISOString().split('T')[0];
 
+    // Find species of selected coop
+    const getSpeciesForCoop = (coopId) => {
+        const coop = coops.find(c => c.id === coopId);
+        return coop?.farm?.species || 'broiler';
+    };
+
+    const defaultCoop = coops[0];
+    const defaultSpecies = getSpeciesForCoop(defaultCoop?.id);
+    const defaultRange = speciesRanges?.[defaultSpecies] || { min: 28, max: 45, default: 35 };
+
     const { data, setData, post, processing, errors } = useForm({
-        coop_id: coops[0]?.id || '',
+        coop_id: defaultCoop?.id || '',
         doc_date: todayStr,
         doc_count: '',
-        strain: 'Ross',
+        strain: '',
         supplier_doc: '',
         price_doc: '',
-        target_days: 35,
+        target_days: defaultRange.default,
         notes: '',
     });
 
+    const selectedSpecies = getSpeciesForCoop(data.coop_id);
+    const range = speciesRanges?.[selectedSpecies] || { min: 28, max: 45, default: 35 };
+
+    const speciesLabels = {
+        broiler: 'Ayam Broiler',
+        bebek: 'Bebek',
+        lele: 'Lele',
+        nila: 'Nila',
+    };
+
+    // Strain options per species
+    const strainOptions = {
+        broiler: ['Ross', 'Cobb', 'Lohmann', 'Other'],
+        bebek: ['Peking', 'Mojosari', 'Hibrida', 'Other'],
+        lele: ['Sangkuriang', 'Mutiara', 'Dumbo', 'Other'],
+        nila: ['GIFT', 'Nirwana', 'Larasati', 'Other'],
+    };
+
+    const currentStrains = strainOptions[selectedSpecies] || strainOptions.broiler;
+
     const [harvestDatePreview, setHarvestDatePreview] = useState('');
+
+    // Update target_days when coop changes
+    const handleCoopChange = (coopId) => {
+        const sp = getSpeciesForCoop(coopId);
+        const r = speciesRanges?.[sp] || { min: 28, max: 45, default: 35 };
+        setData(prev => ({
+            ...prev,
+            coop_id: coopId,
+            target_days: r.default,
+            strain: '',
+        }));
+    };
 
     useEffect(() => {
         if (data.doc_date && data.target_days) {
@@ -36,7 +78,7 @@ export default function Create({ coops }) {
         post(route('cycles.store'));
     };
 
-    const isFormValid = data.coop_id && data.doc_date && data.doc_count > 0 && data.strain;
+    const isFormValid = data.coop_id && data.doc_date && data.doc_count > 0;
 
     return (
         <>
@@ -44,29 +86,7 @@ export default function Create({ coops }) {
 
             <div className="mobile-container input-page-container">
                 <form onSubmit={handleSubmit} className="main-scroll" style={{ paddingBottom: '40px' }}>
-                    {/* Header */}
-                    <div className="status-bar" style={{ padding: '8px 20px 16px' }}>
-                        <span>12:30</span>
-                        <div className="status-bar-icons">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#1A2E1A">
-                                <rect x="1" y="14" width="3" height="8" rx="1" />
-                                <rect x="6" y="10" width="3" height="12" rx="1" />
-                                <rect x="11" y="6" width="3" height="16" rx="1" />
-                                <rect x="16" y="2" width="3" height="20" rx="1" />
-                            </svg>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A2E1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M5 12.55a11 11 0 0 1 14.08 0" />
-                                <path d="M1.42 9a16 16 0 0 1 21.16 0" />
-                                <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
-                                <line x1="12" y1="20" x2="12.01" y2="20" />
-                            </svg>
-                            <svg width="22" height="12" viewBox="0 0 28 14" fill="none">
-                                <rect x="0.5" y="0.5" width="23" height="13" rx="3" stroke="#1A2E1A" strokeWidth="1" />
-                                <rect x="2" y="2" width="18" height="10" rx="2" fill="#327039" />
-                                <rect x="24.5" y="4" width="2.5" height="6" rx="1" fill="#1A2E1A" />
-                            </svg>
-                        </div>
-                    </div>
+
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 20px' }}>
                         <Link href="/dashboard" className="back-btn-circle" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -93,7 +113,7 @@ export default function Create({ coops }) {
                                     <button
                                         key={coop.id}
                                         type="button"
-                                        onClick={() => setData('coop_id', coop.id)}
+                                        onClick={() => handleCoopChange(coop.id)}
                                         style={{
                                             padding: '12px',
                                             borderRadius: '16px',
@@ -107,7 +127,7 @@ export default function Create({ coops }) {
                                     >
                                         <div style={{ fontWeight: '700', fontSize: '15px', color: 'var(--color-text-dark)' }}>Kandang {coop.coop_code}</div>
                                         <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
-                                            {coop.coop_type === 'open_house' ? 'Open House' : 'Close House'}
+                                            {speciesLabels[coop.farm?.species] || 'Ayam Broiler'} · {coop.coop_type === 'open_house' ? 'Open House' : 'Close House'}
                                         </div>
                                         <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
                                             Kapasitas: {coop.capacity.toLocaleString()} ekor
@@ -149,7 +169,7 @@ export default function Create({ coops }) {
                         </div>
                         {errors.doc_count && <div className="error-message" style={{ color: 'red', fontSize: '11px', marginTop: '-6px', marginBottom: '10px' }}>{errors.doc_count}</div>}
 
-                        <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px', marginTop: '12px' }}>STRAIN DOC</label>
+                        <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px', marginTop: '12px' }}>STRAIN / VARIETAS</label>
                         <div className="input-box-container">
                             <select
                                 className="large-number-input"
@@ -157,10 +177,10 @@ export default function Create({ coops }) {
                                 value={data.strain}
                                 onChange={(e) => setData('strain', e.target.value)}
                             >
-                                <option value="Ross">Ross</option>
-                                <option value="Cobb">Cobb</option>
-                                <option value="Lohmann">Lohmann</option>
-                                <option value="Other">Other</option>
+                                <option value="">Pilih strain...</option>
+                                {currentStrains.map(s => (
+                                    <option key={s} value={s}>{s}</option>
+                                ))}
                             </select>
                         </div>
                         {errors.strain && <div className="error-message" style={{ color: 'red', fontSize: '11px', marginTop: '-6px', marginBottom: '10px' }}>{errors.strain}</div>}
@@ -207,15 +227,15 @@ export default function Create({ coops }) {
                         <div style={{ padding: '10px 0' }}>
                             <input
                                 type="range"
-                                min="28"
-                                max="45"
+                                min={range.min}
+                                max={range.max}
                                 value={data.target_days}
                                 onChange={(e) => setData('target_days', e.target.value)}
                                 style={{ width: '100%', height: '6px', background: '#D0D5D0', accentColor: 'var(--color-forest)', cursor: 'pointer', borderRadius: '4px' }}
                             />
                             <div style={{ display: 'flex', justifyContent: 'between', fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '6px' }}>
-                                <span>28 Hari</span>
-                                <span style={{ marginLeft: 'auto' }}>45 Hari</span>
+                                <span>{range.min} Hari</span>
+                                <span style={{ marginLeft: 'auto' }}>{range.max} Hari</span>
                             </div>
                         </div>
 

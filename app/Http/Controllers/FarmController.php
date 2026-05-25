@@ -27,7 +27,7 @@ class FarmController extends Controller
             'address' => 'nullable|string',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
-            'species' => 'required|in:broiler',
+            'species' => 'required|in:broiler,bebek,lele,nila',
             'is_active' => 'boolean',
         ]);
 
@@ -54,7 +54,7 @@ class FarmController extends Controller
             'address' => 'nullable|string',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
-            'species' => 'required|in:broiler',
+            'species' => 'required|in:broiler,bebek,lele,nila',
             'is_active' => 'boolean',
         ]);
 

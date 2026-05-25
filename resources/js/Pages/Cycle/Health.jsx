@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
+import BottomNav from '@/Components/BottomNav';
 
 export default function Health({ cycle, records = [], withdrawalStatus = {}, drugsReference = [] }) {
     const todayStr = new Date().toISOString().split('T')[0];
@@ -105,16 +106,9 @@ export default function Health({ cycle, records = [], withdrawalStatus = {}, dru
         <>
             <Head title={`Catatan Kesehatan - Kandang ${cycle.coop.coop_code}`} />
 
-            <div className="mobile-container input-page-container">
+            <div className="mobile-container">
                 <div className="main-scroll" style={{ paddingBottom: '80px' }}>
-                    {/* Header */}
-                    <div className="status-bar" style={{ padding: '8px 20px 16px' }}>
-                        <span>12:30</span>
-                        <div className="status-bar-icons">
-                            <span>📶</span>
-                            <span>🔋</span>
-                        </div>
-                    </div>
+
 
                     <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', padding: '10px 20px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -133,8 +127,8 @@ export default function Health({ cycle, records = [], withdrawalStatus = {}, dru
                         {withdrawalStatus.has_active ? (
                             <Link href={route('cycles.withdrawal', { cycle: cycle.id })} style={{ textDecoration: 'none', display: 'block' }}>
                                 <div style={{
-                                    backgroundColor: '#FFF0ED',
-                                    border: '1.5px solid #FFD3C4',
+                                    backgroundColor: 'var(--color-red-light)',
+                                    border: '1.5px solid rgba(209, 96, 61, 0.3)',
                                     borderRadius: '20px',
                                     padding: '16px',
                                     display: 'flex',
@@ -143,11 +137,11 @@ export default function Health({ cycle, records = [], withdrawalStatus = {}, dru
                                 }}>
                                     <span style={{ fontSize: '24px' }}>⚠️</span>
                                     <div>
-                                        <div style={{ fontWeight: '700', color: '#E05A33', fontSize: '15px' }}>Ada Withdrawal Aktif!</div>
-                                        <div style={{ fontSize: '12px', color: '#E05A33', marginTop: '4px', lineHeight: 1.4 }}>
+                                        <div style={{ fontWeight: '700', color: 'var(--color-cherry)', fontSize: '15px' }}>Ada Withdrawal Aktif!</div>
+                                        <div style={{ fontSize: '12px', color: 'var(--color-cherry)', marginTop: '4px', lineHeight: 1.4 }}>
                                             Obat <strong>{withdrawalStatus.active_withdrawals[0]?.drug_name}</strong> sisa {withdrawalStatus.active_withdrawals[0]?.days_left} hari. Jangan dipanen dulu!
                                         </div>
-                                        <div style={{ fontSize: '11px', color: '#B03A1A', marginTop: '8px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <div style={{ fontSize: '11px', color: 'var(--color-russet)', marginTop: '8px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                             LIHAT RINCIAN ➔
                                         </div>
                                     </div>
@@ -182,8 +176,8 @@ export default function Health({ cycle, records = [], withdrawalStatus = {}, dru
                             style={{
                                 flex: 1,
                                 backgroundColor: 'white',
-                                color: '#E05A33',
-                                border: '1.5px solid #FFD3C4',
+                                color: 'var(--color-cherry)',
+                                border: '1.5px solid rgba(209, 96, 61, 0.3)',
                                 borderRadius: '16px',
                                 padding: '12px',
                                 fontWeight: '700',
@@ -205,7 +199,7 @@ export default function Health({ cycle, records = [], withdrawalStatus = {}, dru
                                 flex: 1,
                                 backgroundColor: 'white',
                                 color: 'var(--color-forest)',
-                                border: '1.5px solid #CBE6CC',
+                                border: '1.5px solid rgba(50, 112, 57, 0.3)',
                                 borderRadius: '16px',
                                 padding: '12px',
                                 fontWeight: '700',
@@ -251,7 +245,7 @@ export default function Health({ cycle, records = [], withdrawalStatus = {}, dru
                                                 width: '40px',
                                                 height: '40px',
                                                 borderRadius: '12px',
-                                                backgroundColor: record.record_type === 'treatment' ? '#FFF0ED' : '#E8F5E9',
+                                                backgroundColor: record.record_type === 'treatment' ? 'var(--color-red-light)' : 'var(--color-green-light)',
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
@@ -270,7 +264,7 @@ export default function Health({ cycle, records = [], withdrawalStatus = {}, dru
                                                     {cycle.status === 'active' && (
                                                         <button
                                                             onClick={() => handleDeleteRecord(record.id)}
-                                                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: '#E05A33', marginLeft: 'auto' }}
+                                                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--color-cherry)', marginLeft: 'auto' }}
                                                             aria-label="Hapus catatan"
                                                         >
                                                             🗑️
@@ -297,7 +291,7 @@ export default function Health({ cycle, records = [], withdrawalStatus = {}, dru
                                                     <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                                                         <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>Withdrawal: {record.withdrawal_days} hari</span>
                                                         {isActive ? (
-                                                            <span style={{ backgroundColor: '#E05A33', color: 'white', fontSize: '9px', fontWeight: '700', padding: '2px 8px', borderRadius: '6px' }}>
+                                                            <span style={{ backgroundColor: 'var(--color-cherry)', color: 'white', fontSize: '9px', fontWeight: '700', padding: '2px 8px', borderRadius: '6px' }}>
                                                                 AKTIF ({daysLeft} HARI SISA)
                                                             </span>
                                                         ) : (
@@ -315,6 +309,9 @@ export default function Health({ cycle, records = [], withdrawalStatus = {}, dru
                         )}
                     </div>
                 </div>
+
+                {/* BOTTOM NAVIGATION */}
+                <BottomNav activeTab="kesehatan" />
             </div>
 
             {/* Entry Form Modal */}
@@ -513,7 +510,7 @@ export default function Health({ cycle, records = [], withdrawalStatus = {}, dru
                                 type="submit"
                                 disabled={processing}
                                 style={{
-                                    backgroundColor: data.record_type === 'treatment' ? '#E05A33' : 'var(--color-forest)',
+                                    backgroundColor: data.record_type === 'treatment' ? 'var(--color-cherry)' : 'var(--color-forest)',
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '16px',
